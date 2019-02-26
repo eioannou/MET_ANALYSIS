@@ -23,15 +23,30 @@ process.GlobalTag = GlobalTag( process.GlobalTag, "94X_mc2017_realistic_v14")
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 
+# Puppi
+from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+makePuppiesFromMiniAOD(process, True)
+
+
 runMetCorAndUncFromMiniAOD(
     process,
     isData = False,
     postfix = "Modified"
     )
 
+runMetCorAndUncFromMiniAOD(process,
+                           isData = False,
+                           metType= "Puppi",
+                           jetFlavor = "AK4PFPuppi",
+                           postfix = "Puppi"
+                           )
+process.puppiNoLep.useExistingWeights = False
+process.puppi.useExistingWeights = False
+
 process.METUncertainties = cms.EDAnalyzer("METUncertainties",
                                           metSrc = cms.untracked.InputTag("slimmedMETs"),
-                                          metmodifiedSrc = cms.untracked.InputTag("slimmedMETsModified")
+                                          metmodifiedSrc = cms.untracked.InputTag("slimmedMETsModified"),
+                                          metPuppiSrc = cms.untracked.InputTag("slimmedMETsPuppi")
                                           )
 
 process.TFileService = cms.Service("TFileService",
@@ -39,6 +54,9 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 process.p = cms.EndPath(
+    process.egmPhotonIDSequence*
+    process.puppiMETSequence*
+    process.fullPatMetSequencePuppi*
     process.fullPatMetSequenceModified*
     process.METUncertainties
     )
