@@ -188,7 +188,7 @@ METUncertainties::METUncertainties(const edm::ParameterSet& iConfig)
   hMETmod_phi_taudn  = fs -> make<TH1F>("hMETmod_phi_taudn",  "hMETmod_phi_taudn",  100, 0.0, 200.0);
   hMETmod_pt_uncup   = fs -> make<TH1F>("hMETmod_pt_uncup",   "hMETmod_pt_uncup",   100, 0.0, 200.0);
   hMETmod_phi_uncup  = fs -> make<TH1F>("hMETmod_phi_uncup",  "hMETmod_phi_uncup",  100, 0.0, 200.0);
-  hMETmod_pt_ucndn   = fs -> make<TH1F>("hMETmod_pt_uncdn",   "hMETmod_pt_uncdn",   100, 0.0, 200.0);
+  hMETmod_pt_uncdn   = fs -> make<TH1F>("hMETmod_pt_uncdn",   "hMETmod_pt_uncdn",   100, 0.0, 200.0);
   hMETmod_phi_uncdn  = fs -> make<TH1F>("hMETmod_phi_uncdn",  "hMETmod_phi_uncdn",  100, 0.0, 200.0);
   //-------------------------------------------------------------------------------------------------
   hMETPuppi_pt         = fs -> make<TH1F>("hMETPuppi_pt",         "hMETPuppi_pt",         100, 0.0, 200.0);
