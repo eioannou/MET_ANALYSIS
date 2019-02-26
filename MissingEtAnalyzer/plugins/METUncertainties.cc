@@ -72,8 +72,10 @@ class METUncertainties : public edm::one::EDAnalyzer<edm::one::SharedResources> 
       // ----------member data ---------------------------
   edm::InputTag metSrcTag_;
   edm::InputTag metmodifiedSrcTag_;
+  edm::InputTag metPuppiSrcTag_;
   edm::EDGetTokenT<edm::View<pat::MET> > metSrcToken_;
   edm::EDGetTokenT<edm::View<pat::MET> > metmodifiedSrcToken_;
+  edm::EDGetTokenT<edm::View<pat::MET> > metPuppiSrcToken_;
 
   int nEvent;
 
@@ -101,6 +103,19 @@ class METUncertainties : public edm::one::EDAnalyzer<edm::one::SharedResources> 
   TH1F *hMETmod_pt_taudn,  *hMETmod_phi_taudn;
   TH1F *hMETmod_pt_uncup,  *hMETmod_phi_uncup;
   TH1F *hMETmod_pt_uncdn,  *hMETmod_phi_uncdn;
+  // MET Puppi
+  TH1F *hMETPuppi_pt, *hMETPuppi_phi;
+  TH1F *hMETPuppi_pt_jecup,  *hMETPuppi_phi_jecup;
+  TH1F *hMETPuppi_pt_jecdn,  *hMETPuppi_phi_jecdn;
+  TH1F *hMETPuppi_pt_muonup, *hMETPuppi_phi_muonup;
+  TH1F *hMETPuppi_pt_muondn, *hMETPuppi_phi_muondn;
+  TH1F *hMETPuppi_pt_eleup,  *hMETPuppi_phi_eleup;
+  TH1F *hMETPuppi_pt_eledn,  *hMETPuppi_phi_eledn;
+  TH1F *hMETPuppi_pt_tauup,  *hMETPuppi_phi_tauup;
+  TH1F *hMETPuppi_pt_taudn,  *hMETPuppi_phi_taudn;
+  TH1F *hMETPuppi_pt_uncup,  *hMETPuppi_phi_uncup;
+  TH1F *hMETPuppi_pt_uncdn,  *hMETPuppi_phi_uncdn;
+
 
 };
 
@@ -124,6 +139,9 @@ METUncertainties::METUncertainties(const edm::ParameterSet& iConfig)
   metmodifiedSrcTag_ = iConfig.getUntrackedParameter<edm::InputTag>("metmodifiedSrc");
   metmodifiedSrcToken_ = consumes<edm::View<pat::MET> >(metmodifiedSrcTag_);
 
+  metPuppiSrcTag_ = iConfig.getUntrackedParameter<edm::InputTag>("metPuppiSrc");
+  metPuppiSrcToken_ = consumes<edm::View<pat::MET> >(metPuppiSrcTag_);
+
   nEvent = 0;
 
   edm::Service<TFileService> fs;
@@ -146,6 +164,8 @@ METUncertainties::METUncertainties(const edm::ParameterSet& iConfig)
   hMET_pt_taudn   = fs -> make<TH1F>("hMET_pt_taudn",   "hMET_pt_taudn",   100, 0.0, 200.0);
   hMET_phi_taudn  = fs -> make<TH1F>("hMET_phi_taudn",  "hMET_phi_taudn",  100, 0.0, 200.0);
   hMET_pt_uncup   = fs -> make<TH1F>("hMET_pt_uncup",   "hMET_pt_uncup",   100, 0.0, 200.0);
+  hMET_phi_uncup  = fs -> make<TH1F>("hMET_phi_uncup",  "hMET_phi_uncup",  100, 0.0, 200.0);
+  hMET_pt_uncdn   = fs -> make<TH1F>("hMET_pt_uncdn",   "hMET_phi_uncdn",  100, 0.0, 200.0);
   hMET_phi_uncdn  = fs -> make<TH1F>("hMET_phi_uncdn",  "hMET_phi_uncdn",  100, 0.0, 200.0);
   //----------------------------------------------------------------------------------------
   hMETmod_pt         = fs -> make<TH1F>("hMETmod_pt",         "hMETmod_pt",         100, 0.0, 200.0);
@@ -167,8 +187,32 @@ METUncertainties::METUncertainties(const edm::ParameterSet& iConfig)
   hMETmod_pt_taudn   = fs -> make<TH1F>("hMETmod_pt_taudn",   "hMETmod_pt_taudn",   100, 0.0, 200.0);
   hMETmod_phi_taudn  = fs -> make<TH1F>("hMETmod_phi_taudn",  "hMETmod_phi_taudn",  100, 0.0, 200.0);
   hMETmod_pt_uncup   = fs -> make<TH1F>("hMETmod_pt_uncup",   "hMETmod_pt_uncup",   100, 0.0, 200.0);
+  hMETmod_phi_uncup  = fs -> make<TH1F>("hMETmod_phi_uncup",  "hMETmod_phi_uncup",  100, 0.0, 200.0);
+  hMETmod_pt_ucndn   = fs -> make<TH1F>("hMETmod_pt_uncdn",   "hMETmod_pt_uncdn",   100, 0.0, 200.0);
   hMETmod_phi_uncdn  = fs -> make<TH1F>("hMETmod_phi_uncdn",  "hMETmod_phi_uncdn",  100, 0.0, 200.0);
-
+  //-------------------------------------------------------------------------------------------------
+  hMETPuppi_pt         = fs -> make<TH1F>("hMETPuppi_pt",         "hMETPuppi_pt",         100, 0.0, 200.0);
+  hMETPuppi_phi        = fs -> make<TH1F>("hMETPuppi_phi",        "hMETPuppi_phi",        100, 0.0, 200.0);
+  hMETPuppi_pt_jecup   = fs -> make<TH1F>("hMETPuppi_pt_jecup",   "hMETPuppi_pt_jecup",   100, 0.0, 200.0);
+  hMETPuppi_phi_jecup  = fs -> make<TH1F>("hMETPuppi_phi_jecup",  "hMETPuppi_phi_jecup",  100, 0.0, 200.0);
+  hMETPuppi_pt_jecdn   = fs -> make<TH1F>("hMETPuppi_pt_jecdn",   "hMETPuppi_pt_jecdn",   100, 0.0, 200.0);
+  hMETPuppi_phi_jecdn  = fs -> make<TH1F>("hMETPuppi_phi_jecdn",  "hMETPuppi_phi_jecdn",  100, 0.0, 200.0);
+  hMETPuppi_pt_muonup  = fs -> make<TH1F>("hMETPuppi_pt_muonup",  "hMETPuppi_pt_muonup",  100, 0.0, 200.0);
+  hMETPuppi_phi_muonup = fs -> make<TH1F>("hMETPuppi_phi_muonup", "hMETPuppi_phi_muonup", 100, 0.0, 200.0);
+  hMETPuppi_pt_muondn  = fs -> make<TH1F>("hMETPuppi_pt_muondn",  "hMETPuppi_pt_muondn",  100, 0.0, 200.0);
+  hMETPuppi_phi_muondn = fs -> make<TH1F>("hMETPuppi_phi_muondn", "hMETPuppi_phi_muondn", 100, 0.0, 200.0);
+  hMETPuppi_pt_eleup   = fs -> make<TH1F>("hMETPuppi_pt_eleup",   "hMETPuppi_pt_eleup",   100, 0.0, 200.0);
+  hMETPuppi_phi_eleup  = fs -> make<TH1F>("hMETPuppi_phi_eleup",  "hMETPuppi_phi_eleup",  100, 0.0, 200.0);
+  hMETPuppi_pt_eledn   = fs -> make<TH1F>("hMETPuppi_pt_eledn",   "hMETPuppi_pt_eledn",   100, 0.0, 200.0);
+  hMETPuppi_phi_eledn  = fs -> make<TH1F>("hMETPuppi_phi_eledn",  "hMETPuppi_phi_eledn",  100, 0.0, 200.0);
+  hMETPuppi_pt_tauup   = fs -> make<TH1F>("hMETPuppi_pt_tauup",   "hMETPuppi_pt_tauup",   100, 0.0, 200.0);
+  hMETPuppi_phi_tauup  = fs -> make<TH1F>("hMETPuppi_phi_tauup",  "hMETPuppi_phi_tauup",  100, 0.0, 200.0);
+  hMETPuppi_pt_taudn   = fs -> make<TH1F>("hMETPuppi_pt_taudn",   "hMETPuppi_pt_taudn",   100, 0.0, 200.0);
+  hMETPuppi_phi_taudn  = fs -> make<TH1F>("hMETPuppi_phi_taudn",  "hMETPuppi_phi_taudn",  100, 0.0, 200.0);
+  hMETPuppi_pt_uncup   = fs -> make<TH1F>("hMETPuppi_pt_uncup",   "hMETPuppi_pt_uncup",   100, 0.0, 200.0);
+  hMETPuppi_phi_uncup  = fs -> make<TH1F>("hMETPuppi_phi_uncup",  "hMETPuppi_phi_uncup",  100, 0.0, 200.0);
+  hMETPuppi_pt_uncdn   = fs -> make<TH1F>("hMETPuppi_pt_uncdn",   "hMETPuppi_pt_uncdn",   100, 0.0, 200.0);
+  hMETPuppi_phi_uncdn  = fs -> make<TH1F>("hMETPuppi_phi_uncdn",  "hMETPuppi_phi_uncdn",  100, 0.0, 200.0);
   
 
    //now do what ever initialization is needed
@@ -204,6 +248,10 @@ METUncertainties::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.getByToken(metmodifiedSrcToken_, metmodh);
    const pat::MET &metmod = metmodh -> front();
 
+   edm::Handle<edm::View<pat::MET> > metpuppih;
+   iEvent.getByToken(metPuppiSrcToken_, metpuppih);
+   const pat::MET &metpuppi = metpuppih -> front();
+
    // Fill histograms
    //----------------
    hMET_pt  -> Fill(met.pt());
@@ -225,10 +273,10 @@ METUncertainties::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    hMET_pt_taudn   -> Fill(met.shiftedPt(pat::MET::TauEnDown));
    hMET_phi_taudn  -> Fill(met.shiftedPhi(pat::MET::TauEnDown));
    hMET_pt_uncup   -> Fill(met.shiftedPt(pat::MET::UnclusteredEnUp));
-   //hMET_pt_uncdn   -> Fill(met.shiftedPt(pat::MET::UnclusteredEnDown));
-   //hMET_phi_uncup  -> Fill(met.shiftedPhi(pat::MET::UnclusteredEnUp));
-   //hMET_pt_uncdn   -> Fill(met.shiftedPt(pat::MET::UnclusteredEnDown));
-   //hMET_phi_uncdn  -> Fill(met.shiftedPhi(pat::MET::UnclusteredEnDown));
+   hMET_pt_uncdn   -> Fill(met.shiftedPt(pat::MET::UnclusteredEnDown));
+   hMET_phi_uncup  -> Fill(met.shiftedPhi(pat::MET::UnclusteredEnUp));
+   hMET_pt_uncdn   -> Fill(met.shiftedPt(pat::MET::UnclusteredEnDown));
+   hMET_phi_uncdn  -> Fill(met.shiftedPhi(pat::MET::UnclusteredEnDown));
    //--------------------------------------------------------------------------------------
    hMETmod_pt  -> Fill(metmod.pt());
    hMETmod_phi -> Fill(metmod.phi());
@@ -249,9 +297,33 @@ METUncertainties::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    hMETmod_pt_taudn   -> Fill(metmod.shiftedPt(pat::MET::TauEnDown));
    hMETmod_phi_taudn  -> Fill(metmod.shiftedPhi(pat::MET::TauEnDown));
    hMETmod_pt_uncup   -> Fill(metmod.shiftedPt(pat::MET::UnclusteredEnUp));
-   //hMETmod_phi_uncup  -> Fill(metmod.shiftedPhi(pat::MET::UnclusteredEnUp));
-   //hMETmod_pt_uncdn   -> Fill(metmod.shiftedPt(pat::MET::UnclusteredEnDown));
-   //hMETmod_phi_uncdn  -> Fill(metmod.shiftedPhi(pat::MET::UnclusteredEnDown));
+   hMETmod_phi_uncup  -> Fill(metmod.shiftedPhi(pat::MET::UnclusteredEnUp));
+   hMETmod_pt_uncdn   -> Fill(metmod.shiftedPt(pat::MET::UnclusteredEnDown));
+   hMETmod_phi_uncdn  -> Fill(metmod.shiftedPhi(pat::MET::UnclusteredEnDown));
+   //---------------------------------------------------------------------------------------------
+   hMETPuppi_pt  -> Fill(metpuppi.pt());
+   hMETPuppi_phi -> Fill(metpuppi.phi());
+   hMETPuppi_pt_jecup   -> Fill(metpuppi.shiftedPt(pat::MET::JetEnUp));
+   hMETPuppi_phi_jecup  -> Fill(metpuppi.shiftedPhi(pat::MET::JetEnUp));
+   hMETPuppi_pt_jecdn   -> Fill(metpuppi.shiftedPt(pat::MET::JetEnDown));
+   hMETPuppi_phi_jecdn  -> Fill(metpuppi.shiftedPhi(pat::MET::JetEnDown));
+   hMETPuppi_pt_muonup  -> Fill(metpuppi.shiftedPt(pat::MET::MuonEnUp));
+   hMETPuppi_phi_muonup -> Fill(metpuppi.shiftedPhi(pat::MET::MuonEnUp));
+   hMETPuppi_pt_muondn  -> Fill(metpuppi.shiftedPt(pat::MET::MuonEnDown));
+   hMETPuppi_phi_muondn -> Fill(metpuppi.shiftedPhi(pat::MET::MuonEnDown));
+   hMETPuppi_pt_eleup   -> Fill(metpuppi.shiftedPt(pat::MET::ElectronEnUp)); 
+   hMETPuppi_phi_eleup  -> Fill(metpuppi.shiftedPhi(pat::MET::ElectronEnUp));
+   hMETPuppi_pt_eledn   -> Fill(metpuppi.shiftedPt(pat::MET::ElectronEnDown));
+   hMETPuppi_phi_eledn  -> Fill(metpuppi.shiftedPhi(pat::MET::ElectronEnDown));
+   hMETPuppi_pt_tauup   -> Fill(metpuppi.shiftedPt(pat::MET::TauEnUp));
+   hMETPuppi_phi_tauup  -> Fill(metpuppi.shiftedPhi(pat::MET::TauEnUp));
+   hMETPuppi_pt_taudn   -> Fill(metpuppi.shiftedPt(pat::MET::TauEnDown));
+   hMETPuppi_phi_taudn  -> Fill(metpuppi.shiftedPhi(pat::MET::TauEnDown));
+   hMETPuppi_pt_uncup   -> Fill(metpuppi.shiftedPt(pat::MET::UnclusteredEnUp));
+   hMETPuppi_pt_uncdn   -> Fill(metpuppi.shiftedPt(pat::MET::UnclusteredEnDown));
+   hMETPuppi_phi_uncup  -> Fill(metpuppi.shiftedPhi(pat::MET::UnclusteredEnUp));
+   hMETPuppi_pt_uncdn   -> Fill(metpuppi.shiftedPt(pat::MET::UnclusteredEnDown));
+   hMETPuppi_phi_uncdn  -> Fill(metpuppi.shiftedPhi(pat::MET::UnclusteredEnDown));
 
    nEvent ++;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
