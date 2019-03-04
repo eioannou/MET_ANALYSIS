@@ -115,6 +115,7 @@ class METUncertainties : public edm::one::EDAnalyzer<edm::one::SharedResources> 
   TH1F *hMETPuppi_pt_taudn,  *hMETPuppi_phi_taudn;
   TH1F *hMETPuppi_pt_uncup,  *hMETPuppi_phi_uncup;
   TH1F *hMETPuppi_pt_uncdn,  *hMETPuppi_phi_uncdn;
+  TH1F *hMETPuppi_px_eleup;
 
 
 };
@@ -213,6 +214,7 @@ METUncertainties::METUncertainties(const edm::ParameterSet& iConfig)
   hMETPuppi_phi_uncup  = fs -> make<TH1F>("hMETPuppi_phi_uncup",  "hMETPuppi_phi_uncup",  100, 0.0, 200.0);
   hMETPuppi_pt_uncdn   = fs -> make<TH1F>("hMETPuppi_pt_uncdn",   "hMETPuppi_pt_uncdn",   100, 0.0, 200.0);
   hMETPuppi_phi_uncdn  = fs -> make<TH1F>("hMETPuppi_phi_uncdn",  "hMETPuppi_phi_uncdn",  100, 0.0, 200.0);
+  hMETPuppi_px_eleup   = fs -> make<TH1F>("hMETPuppi_px_eleup",   "hMETPuppi_px_eleup",   100, 0.0, 200.0);
   
 
    //now do what ever initialization is needed
@@ -324,6 +326,7 @@ METUncertainties::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    hMETPuppi_phi_uncup  -> Fill(metpuppi.shiftedPhi(pat::MET::UnclusteredEnUp));
    hMETPuppi_pt_uncdn   -> Fill(metpuppi.shiftedPt(pat::MET::UnclusteredEnDown));
    hMETPuppi_phi_uncdn  -> Fill(metpuppi.shiftedPhi(pat::MET::UnclusteredEnDown));
+   hMETPuppi_px_eleup   -> Fill(metpuppi.shiftedPx(pat::MET::ElectronEnUp));
 
    nEvent ++;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
