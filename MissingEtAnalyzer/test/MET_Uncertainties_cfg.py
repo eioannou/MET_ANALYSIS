@@ -8,7 +8,7 @@ process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
@@ -27,7 +27,6 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
 makePuppiesFromMiniAOD(process, True)
 
-
 runMetCorAndUncFromMiniAOD(
     process,
     isData = False,
@@ -40,23 +39,36 @@ runMetCorAndUncFromMiniAOD(process,
                            jetFlavor = "AK4PFPuppi",
                            postfix = "Puppi"
                            )
+
+runMetCorAndUncFromMiniAOD(process,
+                           isData = False,
+                           metType = "Puppi",
+                           pfCandColl = cms.InputTag("puppiForMET"),
+                           recoMetFromPFCs = True,
+                           reclusterJets = True,
+                           jetFlavor = "AK4PFPuppi",
+                           postfix = "PuppiRecorrect"
+                           )
+
 process.puppiNoLep.useExistingWeights = False
 process.puppi.useExistingWeights = False
 
 process.METUncertainties = cms.EDAnalyzer("METUncertainties",
                                           metSrc = cms.untracked.InputTag("slimmedMETs"),
                                           metmodifiedSrc = cms.untracked.InputTag("slimmedMETsModified"),
-                                          metPuppiSrc = cms.untracked.InputTag("slimmedMETsPuppi")
+                                          metPuppiSrc = cms.untracked.InputTag("slimmedMETsPuppi"),
+                                          metPuppiRecorrectSrc = cms.untracked.InputTag("slimmedMETsPuppiRecorrect"),
                                           )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("METUncertainties_ntuples.root")
+                                   fileName = cms.string("METUncertainties_ntuples_NOPF_94X.root")
                                    )
 
 process.p = cms.EndPath(
     process.egmPhotonIDSequence*
     process.puppiMETSequence*
     process.fullPatMetSequencePuppi*
+    process.fullPatMetSequencePuppiRecorrect*
     process.fullPatMetSequenceModified*
     process.METUncertainties
     )
