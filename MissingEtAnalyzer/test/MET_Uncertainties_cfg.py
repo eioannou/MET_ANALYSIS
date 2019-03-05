@@ -8,7 +8,7 @@ process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
@@ -67,8 +67,8 @@ process.TFileService = cms.Service("TFileService",
 process.p = cms.EndPath(
     process.egmPhotonIDSequence*
     process.puppiMETSequence*
-    process.fullPatMetSequencePuppi*
     process.fullPatMetSequencePuppiRecorrect*
+    process.fullPatMetSequencePuppi*
     process.fullPatMetSequenceModified*
     process.METUncertainties
     )
