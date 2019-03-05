@@ -73,9 +73,11 @@ class METUncertainties : public edm::one::EDAnalyzer<edm::one::SharedResources> 
   edm::InputTag metSrcTag_;
   edm::InputTag metmodifiedSrcTag_;
   edm::InputTag metPuppiSrcTag_;
+  edm::InputTag metPuppiRecorrectSrcTag_;
   edm::EDGetTokenT<edm::View<pat::MET> > metSrcToken_;
   edm::EDGetTokenT<edm::View<pat::MET> > metmodifiedSrcToken_;
   edm::EDGetTokenT<edm::View<pat::MET> > metPuppiSrcToken_;
+  edm::EDGetTokenT<edm::View<pat::MET> > metPuppiRecorrectSrcToken_;
 
   int nEvent;
 
@@ -115,7 +117,38 @@ class METUncertainties : public edm::one::EDAnalyzer<edm::one::SharedResources> 
   TH1F *hMETPuppi_pt_taudn,  *hMETPuppi_phi_taudn;
   TH1F *hMETPuppi_pt_uncup,  *hMETPuppi_phi_uncup;
   TH1F *hMETPuppi_pt_uncdn,  *hMETPuppi_phi_uncdn;
+  TH1F *hMETPuppi_px_jecup;
+  TH1F *hMETPuppi_px_jecdn;
+  TH1F *hMETPuppi_px_muonup;
+  TH1F *hMETPuppi_px_muondn;
   TH1F *hMETPuppi_px_eleup;
+  TH1F *hMETPuppi_px_eledn;
+  TH1F *hMETPuppi_px_tauup;
+  TH1F *hMETPuppi_px_taudn;
+  TH1F *hMETPuppi_px_uncup;
+  TH1F *hMETPuppi_px_uncdn;
+  // MET Puppi Recorrect
+  TH1F *hMETPuppiRecorrect_pt, *hMETPuppiRecorrect_phi;
+  TH1F *hMETPuppiRecorrect_pt_jecup,  *hMETPuppiRecorrect_phi_jecup;
+  TH1F *hMETPuppiRecorrect_pt_jecdn,  *hMETPuppiRecorrect_phi_jecdn;
+  TH1F *hMETPuppiRecorrect_pt_muonup, *hMETPuppiRecorrect_phi_muonup;
+  TH1F *hMETPuppiRecorrect_pt_muondn, *hMETPuppiRecorrect_phi_muondn;
+  TH1F *hMETPuppiRecorrect_pt_eleup,  *hMETPuppiRecorrect_phi_eleup;
+  TH1F *hMETPuppiRecorrect_pt_eledn,  *hMETPuppiRecorrect_phi_eledn;
+  TH1F *hMETPuppiRecorrect_pt_tauup,  *hMETPuppiRecorrect_phi_tauup;
+  TH1F *hMETPuppiRecorrect_pt_taudn,  *hMETPuppiRecorrect_phi_taudn;
+  TH1F *hMETPuppiRecorrect_pt_uncup,  *hMETPuppiRecorrect_phi_uncup;
+  TH1F *hMETPuppiRecorrect_pt_uncdn,  *hMETPuppiRecorrect_phi_uncdn;
+  TH1F *hMETPuppiRecorrect_px_jecup;
+  TH1F *hMETPuppiRecorrect_px_jecdn;
+  TH1F *hMETPuppiRecorrect_px_muonup;
+  TH1F *hMETPuppiRecorrect_px_muondn;
+  TH1F *hMETPuppiRecorrect_px_eleup;
+  TH1F *hMETPuppiRecorrect_px_eledn;
+  TH1F *hMETPuppiRecorrect_px_tauup;
+  TH1F *hMETPuppiRecorrect_px_taudn;
+  TH1F *hMETPuppiRecorrect_px_uncup;
+  TH1F *hMETPuppiRecorrect_px_uncdn;
 
 
 };
@@ -142,6 +175,9 @@ METUncertainties::METUncertainties(const edm::ParameterSet& iConfig)
 
   metPuppiSrcTag_ = iConfig.getUntrackedParameter<edm::InputTag>("metPuppiSrc");
   metPuppiSrcToken_ = consumes<edm::View<pat::MET> >(metPuppiSrcTag_);
+
+  metPuppiRecorrectSrcTag_ = iConfig.getUntrackedParameter<edm::InputTag>("metPuppiRecorrectSrc");
+  metPuppiRecorrectSrcToken_ = consumes<edm::View<pat::MET> >(metPuppiRecorrectSrcTag_);
 
   nEvent = 0;
 
@@ -214,8 +250,50 @@ METUncertainties::METUncertainties(const edm::ParameterSet& iConfig)
   hMETPuppi_phi_uncup  = fs -> make<TH1F>("hMETPuppi_phi_uncup",  "hMETPuppi_phi_uncup",  100, 0.0, 200.0);
   hMETPuppi_pt_uncdn   = fs -> make<TH1F>("hMETPuppi_pt_uncdn",   "hMETPuppi_pt_uncdn",   100, 0.0, 200.0);
   hMETPuppi_phi_uncdn  = fs -> make<TH1F>("hMETPuppi_phi_uncdn",  "hMETPuppi_phi_uncdn",  100, 0.0, 200.0);
+  hMETPuppi_px_jecup   = fs -> make<TH1F>("hMETPuppi_px_jecup",   "hMETPuppi_px_jecup",   100, 0.0, 200.0);
+  hMETPuppi_px_jecdn   = fs -> make<TH1F>("hMETPuppi_px_jecdn",   "hMETPuppi_px_jecdn",   100, 0.0, 200.0);
+  hMETPuppi_px_muonup  = fs -> make<TH1F>("hMETPuppi_px_muonup",  "hMETPuppi_px_muonup",  100, 0.0, 200.0);
+  hMETPuppi_px_muondn  = fs -> make<TH1F>("hMETPuppi_px_muondn",  "hMETPuppi_px_muondn",  100, 0.0, 200.0);
   hMETPuppi_px_eleup   = fs -> make<TH1F>("hMETPuppi_px_eleup",   "hMETPuppi_px_eleup",   100, 0.0, 200.0);
-  
+  hMETPuppi_px_eledn   = fs -> make<TH1F>("hMETPuppi_px_eledn",   "hMETPuppi_px_eledn",   100, 0.0, 200.0);
+  hMETPuppi_px_tauup   = fs -> make<TH1F>("hMETPuppi_px_tauup",   "hMETPuppi_px_tauup",   100, 0.0, 200.0);
+  hMETPuppi_px_taudn   = fs -> make<TH1F>("hMETPuppi_px_taudn",   "hMETPuppi_px_taudn",   100, 0.0, 200.0);
+  hMETPuppi_px_uncup   = fs -> make<TH1F>("hMETPuppi_px_uncup",   "hMETPuppi_px_uncup",   100, 0.0, 200.0);
+  hMETPuppi_px_uncdn   = fs -> make<TH1F>("hMETPuppi_px_uncdn",   "hMETPuppi_px_uncdn",   100, 0.0, 200.0);
+  //--------------------------------------------------------------------------------------------------------
+  hMETPuppiRecorrect_pt         = fs -> make<TH1F>("hMETPuppiRecorrect_pt",         "hMETPuppiRecorrect_pt",         100, 0.0, 200.0);
+  hMETPuppiRecorrect_phi        = fs -> make<TH1F>("hMETPuppiRecorrect_phi",        "hMETPuppiRecorrect_phi",        100, 0.0, 200.0);
+  hMETPuppiRecorrect_pt_jecup   = fs -> make<TH1F>("hMETPuppiRecorrect_pt_jecup",   "hMETPuppiRecorrect_pt_jecup",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_phi_jecup  = fs -> make<TH1F>("hMETPuppiRecorrect_phi_jecup",  "hMETPuppiRecorrect_phi_jecup",  100, 0.0, 200.0);
+  hMETPuppiRecorrect_pt_jecdn   = fs -> make<TH1F>("hMETPuppiRecorrect_pt_jecdn",   "hMETPuppiRecorrect_pt_jecdn",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_phi_jecdn  = fs -> make<TH1F>("hMETPuppiRecorrect_phi_jecdn",  "hMETPuppiRecorrect_phi_jecdn",  100, 0.0, 200.0);
+  hMETPuppiRecorrect_pt_muonup  = fs -> make<TH1F>("hMETPuppiRecorrect_pt_muonup",  "hMETPuppiRecorrect_pt_muonup",  100, 0.0, 200.0);
+  hMETPuppiRecorrect_phi_muonup = fs -> make<TH1F>("hMETPuppiRecorrect_phi_muonup", "hMETPuppiRecorrect_phi_muonup", 100, 0.0, 200.0);
+  hMETPuppiRecorrect_pt_muondn  = fs -> make<TH1F>("hMETPuppiRecorrect_pt_muondn",  "hMETPuppiRecorrect_pt_muondn",  100, 0.0, 200.0);
+  hMETPuppiRecorrect_phi_muondn = fs -> make<TH1F>("hMETPuppiRecorrect_phi_muondn", "hMETPuppiRecorrect_phi_muondn", 100, 0.0, 200.0);
+  hMETPuppiRecorrect_pt_eleup   = fs -> make<TH1F>("hMETPuppiRecorrect_pt_eleup",   "hMETPuppiRecorrect_pt_eleup",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_phi_eleup  = fs -> make<TH1F>("hMETPuppiRecorrect_phi_eleup",  "hMETPuppiRecorrect_phi_eleup",  100, 0.0, 200.0);
+  hMETPuppiRecorrect_pt_eledn   = fs -> make<TH1F>("hMETPuppiRecorrect_pt_eledn",   "hMETPuppiRecorrect_pt_eledn",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_phi_eledn  = fs -> make<TH1F>("hMETPuppiRecorrect_phi_eledn",  "hMETPuppiRecorrect_phi_eledn",  100, 0.0, 200.0);
+  hMETPuppiRecorrect_pt_tauup   = fs -> make<TH1F>("hMETPuppiRecorrect_pt_tauup",   "hMETPuppiRecorrect_pt_tauup",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_phi_tauup  = fs -> make<TH1F>("hMETPuppiRecorrect_phi_tauup",  "hMETPuppiRecorrect_phi_tauup",  100, 0.0, 200.0);
+  hMETPuppiRecorrect_pt_taudn   = fs -> make<TH1F>("hMETPuppiRecorrect_pt_taudn",   "hMETPuppiRecorrect_pt_taudn",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_phi_taudn  = fs -> make<TH1F>("hMETPuppiRecorrect_phi_taudn",  "hMETPuppiRecorrect_phi_taudn",  100, 0.0, 200.0);
+  hMETPuppiRecorrect_pt_uncup   = fs -> make<TH1F>("hMETPuppiRecorrect_pt_uncup",   "hMETPuppiRecorrect_pt_uncup",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_phi_uncup  = fs -> make<TH1F>("hMETPuppiRecorrect_phi_uncup",  "hMETPuppiRecorrect_phi_uncup",  100, 0.0, 200.0);
+  hMETPuppiRecorrect_pt_uncdn   = fs -> make<TH1F>("hMETPuppiRecorrect_pt_uncdn",   "hMETPuppiRecorrect_pt_uncdn",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_phi_uncdn  = fs -> make<TH1F>("hMETPuppiRecorrect_phi_uncdn",  "hMETPuppiRecorrect_phi_uncdn",  100, 0.0, 200.0);
+  hMETPuppiRecorrect_px_jecup   = fs -> make<TH1F>("hMETPuppiRecorrect_px_jecup",   "hMETPuppiRecorrect_px_jecup",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_px_jecdn   = fs -> make<TH1F>("hMETPuppiRecorrect_px_jecdn",   "hMETPuppiRecorrect_px_jecdn",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_px_muonup  = fs -> make<TH1F>("hMETPuppiRecorrect_px_muonup",  "hMETPuppiRecorrect_px_muonup",  100, 0.0, 200.0);
+  hMETPuppiRecorrect_px_muondn  = fs -> make<TH1F>("hMETPuppiRecorrect_px_muondn",  "hMETPuppiRecorrect_px_muondn",  100, 0.0, 200.0);
+  hMETPuppiRecorrect_px_eleup   = fs -> make<TH1F>("hMETPuppiRecorrect_px_eleup",   "hMETPuppiRecorrect_px_eleup",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_px_eledn   = fs -> make<TH1F>("hMETPuppiRecorrect_px_eledn",   "hMETPuppiRecorrect_px_eledn",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_px_tauup   = fs -> make<TH1F>("hMETPuppiRecorrect_px_tauup",   "hMETPuppiRecorrect_px_tauup",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_px_taudn   = fs -> make<TH1F>("hMETPuppiRecorrect_px_taudn",   "hMETPuppiRecorrect_px_taudn",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_px_uncup   = fs -> make<TH1F>("hMETPuppiRecorrect_px_uncup",   "hMETPuppiRecorrect_px_uncup",   100, 0.0, 200.0);
+  hMETPuppiRecorrect_px_uncdn   = fs -> make<TH1F>("hMETPuppiRecorrect_px_uncdn",   "hMETPuppiRecorrect_px_uncdn",   100, 0.0, 200.0);
+
 
    //now do what ever initialization is needed
    usesResource("TFileService");
@@ -253,6 +331,10 @@ METUncertainties::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    edm::Handle<edm::View<pat::MET> > metpuppih;
    iEvent.getByToken(metPuppiSrcToken_, metpuppih);
    const pat::MET &metpuppi = metpuppih -> front();
+
+   edm::Handle<edm::View<pat::MET> > metpuppirecorrecth;
+   iEvent.getByToken(metPuppiRecorrectSrcToken_, metpuppirecorrecth);
+   const pat::MET &metpuppirecorrect = metpuppirecorrecth -> front();
 
    // Fill histograms
    //----------------
@@ -326,7 +408,51 @@ METUncertainties::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    hMETPuppi_phi_uncup  -> Fill(metpuppi.shiftedPhi(pat::MET::UnclusteredEnUp));
    hMETPuppi_pt_uncdn   -> Fill(metpuppi.shiftedPt(pat::MET::UnclusteredEnDown));
    hMETPuppi_phi_uncdn  -> Fill(metpuppi.shiftedPhi(pat::MET::UnclusteredEnDown));
+   hMETPuppi_px_jecup   -> Fill(metpuppi.shiftedPx(pat::MET::JetEnUp));
+   hMETPuppi_px_jecdn   -> Fill(metpuppi.shiftedPx(pat::MET::JetEnDown));
+   hMETPuppi_px_muonup  -> Fill(metpuppi.shiftedPx(pat::MET::MuonEnUp));
+   hMETPuppi_px_muondn  -> Fill(metpuppi.shiftedPx(pat::MET::MuonEnDown));
    hMETPuppi_px_eleup   -> Fill(metpuppi.shiftedPx(pat::MET::ElectronEnUp));
+   hMETPuppi_px_eledn   -> Fill(metpuppi.shiftedPx(pat::MET::ElectronEnDown));
+   hMETPuppi_px_tauup   -> Fill(metpuppi.shiftedPx(pat::MET::TauEnUp));
+   hMETPuppi_px_taudn   -> Fill(metpuppi.shiftedPx(pat::MET::TauEnDown));
+   hMETPuppi_px_uncup   -> Fill(metpuppi.shiftedPx(pat::MET::UnclusteredEnUp));
+   hMETPuppi_px_uncdn   -> Fill(metpuppi.shiftedPx(pat::MET::UnclusteredEnDown));
+   //--------------------------------------------------------------------------------------------------
+   hMETPuppiRecorrect_pt  -> Fill(metpuppirecorrect.pt());
+   hMETPuppiRecorrect_phi -> Fill(metpuppirecorrect.phi());
+   hMETPuppiRecorrect_pt_jecup   -> Fill(metpuppirecorrect.shiftedPt(pat::MET::JetEnUp));
+   hMETPuppiRecorrect_phi_jecup  -> Fill(metpuppirecorrect.shiftedPhi(pat::MET::JetEnUp));
+   hMETPuppiRecorrect_pt_jecdn   -> Fill(metpuppirecorrect.shiftedPt(pat::MET::JetEnDown));
+   hMETPuppiRecorrect_phi_jecdn  -> Fill(metpuppirecorrect.shiftedPhi(pat::MET::JetEnDown));
+   hMETPuppiRecorrect_pt_muonup  -> Fill(metpuppirecorrect.shiftedPt(pat::MET::MuonEnUp));
+   hMETPuppiRecorrect_phi_muonup -> Fill(metpuppirecorrect.shiftedPhi(pat::MET::MuonEnUp));
+   hMETPuppiRecorrect_pt_muondn  -> Fill(metpuppirecorrect.shiftedPt(pat::MET::MuonEnDown));
+   hMETPuppiRecorrect_phi_muondn -> Fill(metpuppirecorrect.shiftedPhi(pat::MET::MuonEnDown));
+   hMETPuppiRecorrect_pt_eleup   -> Fill(metpuppirecorrect.shiftedPt(pat::MET::ElectronEnUp)); 
+   hMETPuppiRecorrect_phi_eleup  -> Fill(metpuppirecorrect.shiftedPhi(pat::MET::ElectronEnUp));
+   hMETPuppiRecorrect_pt_eledn   -> Fill(metpuppirecorrect.shiftedPt(pat::MET::ElectronEnDown));
+   hMETPuppiRecorrect_phi_eledn  -> Fill(metpuppirecorrect.shiftedPhi(pat::MET::ElectronEnDown));
+   hMETPuppiRecorrect_pt_tauup   -> Fill(metpuppirecorrect.shiftedPt(pat::MET::TauEnUp));
+   hMETPuppiRecorrect_phi_tauup  -> Fill(metpuppirecorrect.shiftedPhi(pat::MET::TauEnUp));
+   hMETPuppiRecorrect_pt_taudn   -> Fill(metpuppirecorrect.shiftedPt(pat::MET::TauEnDown));
+   hMETPuppiRecorrect_phi_taudn  -> Fill(metpuppirecorrect.shiftedPhi(pat::MET::TauEnDown));
+   hMETPuppiRecorrect_pt_uncup   -> Fill(metpuppirecorrect.shiftedPt(pat::MET::UnclusteredEnUp));
+   hMETPuppiRecorrect_pt_uncdn   -> Fill(metpuppirecorrect.shiftedPt(pat::MET::UnclusteredEnDown));
+   hMETPuppiRecorrect_phi_uncup  -> Fill(metpuppirecorrect.shiftedPhi(pat::MET::UnclusteredEnUp));
+   hMETPuppiRecorrect_pt_uncdn   -> Fill(metpuppirecorrect.shiftedPt(pat::MET::UnclusteredEnDown));
+   hMETPuppiRecorrect_phi_uncdn  -> Fill(metpuppirecorrect.shiftedPhi(pat::MET::UnclusteredEnDown));
+   hMETPuppiRecorrect_px_jecup   -> Fill(metpuppirecorrect.shiftedPx(pat::MET::JetEnUp));
+   hMETPuppiRecorrect_px_jecdn   -> Fill(metpuppirecorrect.shiftedPx(pat::MET::JetEnDown));
+   hMETPuppiRecorrect_px_muonup  -> Fill(metpuppirecorrect.shiftedPx(pat::MET::MuonEnUp));
+   hMETPuppiRecorrect_px_muondn  -> Fill(metpuppirecorrect.shiftedPx(pat::MET::MuonEnDown));
+   hMETPuppiRecorrect_px_eleup   -> Fill(metpuppirecorrect.shiftedPx(pat::MET::ElectronEnUp));
+   hMETPuppiRecorrect_px_eledn   -> Fill(metpuppirecorrect.shiftedPx(pat::MET::ElectronEnDown));
+   hMETPuppiRecorrect_px_tauup   -> Fill(metpuppirecorrect.shiftedPx(pat::MET::TauEnUp));
+   hMETPuppiRecorrect_px_taudn   -> Fill(metpuppirecorrect.shiftedPx(pat::MET::TauEnDown));
+   hMETPuppiRecorrect_px_uncup   -> Fill(metpuppirecorrect.shiftedPx(pat::MET::UnclusteredEnUp));
+   hMETPuppiRecorrect_px_uncdn   -> Fill(metpuppirecorrect.shiftedPx(pat::MET::UnclusteredEnDown));
+
 
    nEvent ++;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
