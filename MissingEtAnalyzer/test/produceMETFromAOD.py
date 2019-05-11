@@ -33,4 +33,4 @@ process.out.outputCommands = process.MicroEventContentMC.outputCommands
 from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
 miniAOD_customizeOutput(process.out)
 
-process.out.fileName = 'patMiniAOD_standard.root'
+process.out.fileName = 'patMiniAOD_For_Significance.root'
